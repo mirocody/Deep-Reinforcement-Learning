@@ -28,6 +28,7 @@ def generate_episode_from_limit_stochastic(bj_env):
         probs = [0.8, 0.2] if state[0] > 18 else [0.2, 0.8]
         action = np.random.choice(np.arange(2), p=probs)
         next_state, reward, done, info = bj_env.step(action)
+        # print (next_state, reward, done, info)
         episodes.append((state,action,reward))
         state = next_state
         if done:
@@ -56,6 +57,7 @@ def part1():
 def mc_prediction_q(env, num_episodes, generate_episode, gamma=1.0):
     # initialize empty dictionaries of arrays
     returns_sum = defaultdict(lambda: np.zeros(env.action_space.n))
+    # print (returns_sum.items())
     N = defaultdict(lambda: np.zeros(env.action_space.n))
     Q = defaultdict(lambda: np.zeros(env.action_space.n))
     # loop over episodes
@@ -65,9 +67,9 @@ def mc_prediction_q(env, num_episodes, generate_episode, gamma=1.0):
             print("\rEpisode {}/{}.".format(i_episode, num_episodes), end="")
             sys.stdout.flush()
         # generate an episode
-        episode = generate_episode(env)
+        episodes = generate_episode(env)
         # obtain the states, actions, and rewards
-        states, actions, rewards = zip(*episode)
+        states, actions, rewards = zip(*episodes)
         # prepare for discounting
         discounts = np.array([gamma**i for i in range(len(rewards)+1)])
         # update the sum of the returns, number of visits, and action-value
@@ -77,9 +79,10 @@ def mc_prediction_q(env, num_episodes, generate_episode, gamma=1.0):
             N[state][actions[i]] += 1.0
             Q[state][actions[i]] = returns_sum[state][actions[i]] / N[state][actions[i]]
     return Q
-Q = mc_prediction_q(env, 500000, generate_episode_from_limit_stochastic)
-V_to_plot = dict((k,(k[0]>18)*(np.dot([0.8, 0.2],v)) + (k[0]<=18)*(np.dot([0.2, 0.8],v))) \
-         for k, v in Q.items())
+Q = mc_prediction_q(env, 100, generate_episode_from_limit_stochastic)
+# V_to_plot = dict((k,(k[0]>18)*(np.dot([0.8, 0.2],v)) + (k[0]<=18)*(np.dot([0.2, 0.8],v))) \
+#          for k, v in Q.items())
 
 # plot the state-value function
-plot_blackjack_values(V_to_plot)
+# plot_blackjack_values(V_to_plot)
+# part1()
