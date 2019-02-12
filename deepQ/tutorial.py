@@ -155,6 +155,7 @@ def plot_durations():
     if is_ipython:
         display.clear_output(wait=True)
         display.display(plt.gcf())
+
 def optimize_model():
     if len(memory) < BATCH_SIZE:
         return
